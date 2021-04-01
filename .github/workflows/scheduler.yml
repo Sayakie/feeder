@@ -2,9 +2,11 @@ name: Feed Scheduler
 on:
   # Acts when main branch was pushed or pr accepted.
   push:
-    branches: [ $default-branch ]
+    branches:
+      - main
   pull_request:
-    branches: [ $default-branch ]
+    branches:
+      - main
   # Acts when every 08:00 am.
   schedule:
     - cron: "00 23 * * *"
