@@ -3,9 +3,6 @@ on:
   # Acts when main branch was pushed or pr accepted.
   push:
     branches: [ $default-branch ]
-    paths:
-      - src
-      - .github/workflows/scheduler.yml
   pull_request:
     branches: [ $default-branch ]
   # Acts when every 08:00 am.
