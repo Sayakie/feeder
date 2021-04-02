@@ -8,6 +8,7 @@ import type {
   DiscordWebhookForm,
   PersonalRecentPost,
   SlackWebhookForm,
+  VelogTrendingPost,
   Wrapper
 } from './interfaces'
 import { useAxios } from './lib/useAxios'
@@ -21,7 +22,7 @@ let message: DiscordWebhookForm | SlackWebhookForm
 const onFetch = <T>(raw: AxiosResponse<T>) =>
   (<Wrapper<T>>(<unknown>raw.data)).data
 const onError = (err: Error) => {
-  console.error(err)
+  console.dir(err)
   workflows.setFailed(err)
 
   return ''
@@ -30,25 +31,58 @@ const onError = (err: Error) => {
 /** @deprecated */
 const escapeMarkdown = (s: string) => s.replace(/([^\d\s\w가-힣])/g, '\\$1')
 
-const personalRecentPosts = await useAxios()
-  .get<PersonalRecentPost[]>(
-    '/korean/people/feeds?sort=date.desc&page=1&size=7'
-  )
+const AwesomeDevBlog = useAxios()
+const Velog = useAxios('https://v2.velog.io')
+
+const personalRecentPosts = await AwesomeDevBlog.get<PersonalRecentPost[]>(
+  '/korean/people/feeds?sort=date.desc&page=1&size=7'
+)
   .then(onFetch)
   .then(data =>
     data.reduce((prev, cur) => `${prev}[${cur.title}](${cur.link})\n`, '')
   )
   .catch(onError)
 
-const communityRecentPosts = await useAxios()
-  .get<CommunityRecentPost[]>(
-    '/korean/teams/feeds?sort=date.desc&page=1&size=5'
-  )
+const communityRecentPosts = await AwesomeDevBlog.get<CommunityRecentPost[]>(
+  '/korean/teams/feeds?sort=date.desc&page=1&size=5'
+)
   .then(onFetch)
   .then(data =>
     data.reduce((prev, cur) => `${prev}[${cur.title}](${cur.link})\n`, '')
   )
   .catch(onError)
+
+const velogTrendingPosts = await Velog.post<{
+  trendingPosts: VelogTrendingPost[]
+}>('/graphql', {
+  operationName: 'TrendingPosts',
+  query: `query TrendingPosts($limit: Int, $offset: Int, $timeframe: String) {
+    trendingPosts(limit: $limit, offset: $offset, timeframe: $timeframe) {
+      title
+      likes
+      user {
+        username
+      }
+      url_slug
+      comments_count
+      is_private
+    }
+  }
+  `,
+  variables: { limit: 5, offset: 0 }
+})
+  .then(onFetch)
+  .then(data => data.trendingPosts)
+  .then(data =>
+    data.reduce(
+      (prev, cur) =>
+        `${prev}[${cur.title}](https://velog.io/@${cur.user.username}/${cur.url_slug})\n`,
+      ''
+    )
+  )
+  .catch(onError)
+
+console.log(velogTrendingPosts)
 
 // Sends to webhooks
 Webhooks.map(async hookUrl => {
@@ -63,8 +97,21 @@ Webhooks.map(async hookUrl => {
         {
           color: 9166827,
           fields: [
-            { name: '개인 피드', value: personalRecentPosts, inline: false },
-            { name: '단체 피드', value: communityRecentPosts, inline: false }
+            {
+              name: ':newspaper: 개인 피드',
+              value: personalRecentPosts,
+              inline: false
+            },
+            {
+              name: ':newspaper: 단체 피드',
+              value: communityRecentPosts,
+              inline: false
+            },
+            {
+              name: ':newspaper: 트렌드 포스트 / 벨로그',
+              value: velogTrendingPosts,
+              inline: false
+            }
           ]
         }
       ]

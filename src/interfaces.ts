@@ -68,3 +68,14 @@ export interface CommunityRecentPost {
   count: number
   imgUrl: string
 }
+
+export interface VelogTrendingPost {
+  title: string
+  likes: number
+  user: {
+    username: string
+  }
+  url_slug: string
+  comments_count: string
+  is_private: boolean
+}
