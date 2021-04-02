@@ -28,7 +28,7 @@ const onError = (err: Error) => {
   return ''
 }
 
-const AwesomeDevBlog = useAxios()
+const AwesomeDevBlog = useAxios('https://awesome-devblog.netlify.app/api')
 const Velog = useAxios('https://v2.velog.io')
 
 const personalRecentPosts = await AwesomeDevBlog.get<PersonalRecentPost[]>(

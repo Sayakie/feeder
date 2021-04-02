@@ -13,13 +13,15 @@ export type AxiosConfig = Pick<
  * @returns {AxiosInstance}
  */
 export const useAxios = (
-  options?: AxiosRequestConfig | string
+  options: AxiosRequestConfig | string
 ): AxiosInstance => {
   if (typeof options === 'string') options = { baseURL: options }
+  else if (typeof options !== 'object')
+    throw new TypeError('options must be typeof string or object!')
 
   return axios.create({
-    baseURL: options?.baseURL || 'https://awesome-devblog.netlify.app/api',
-    timeout: options?.timeout || 5000,
-    timeoutErrorMessage: options?.timeoutErrorMessage || 'Timed out.'
+    baseURL: options.baseURL,
+    timeout: options.timeout || 5000,
+    timeoutErrorMessage: options.timeoutErrorMessage || 'Timed out.'
   })
 }
