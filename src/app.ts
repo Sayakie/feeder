@@ -28,9 +28,6 @@ const onError = (err: Error) => {
   return ''
 }
 
-/** @deprecated */
-const escapeMarkdown = (s: string) => s.replace(/([^\d\s\w가-힣])/g, '\\$1')
-
 const AwesomeDevBlog = useAxios()
 const Velog = useAxios('https://v2.velog.io')
 
