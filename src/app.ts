@@ -10,6 +10,7 @@ import type {
   SlackWebhookForm,
   Wrapper
 } from './interfaces'
+import { useAxios } from './lib/useAxios'
 
 const { WEBHOOKS: rawWebhooks } = process.env
 if (rawWebhooks == null || rawWebhooks == undefined)
@@ -25,34 +26,28 @@ const onError = (err: Error) => {
 
   return ''
 }
-const escapeMarkdown = (s: string) => s.replace(/(\[|\]\(|\))/g, '\\$1')
 
-const personalRecentPosts = await axios
-  .get<Array<PersonalRecentPost>>(
-    'https://awesome-devblog.netlify.app/api/korean/people/feeds?sort=date.desc&page=1&size=7'
+/** @deprecated */
+const escapeMarkdown = (s: string) => s.replace(/([^\d\s\w가-힣])/g, '\\$1')
+
+const personalRecentPosts = await useAxios()
+  .get<PersonalRecentPost[]>(
+    '/korean/people/feeds?sort=date.desc&page=1&size=7'
   )
   .then(onFetch)
-  .then(data => {
-    return data.reduce(
-      (prev, cur) =>
-        `${prev}\n[${escapeMarkdown(cur.title)}](${escapeMarkdown(cur.link)})`,
-      ''
-    )
-  })
+  .then(data =>
+    data.reduce((prev, cur) => `${prev}[${cur.title}](${cur.link})\n`, '')
+  )
   .catch(onError)
 
-const communityRecentPosts = await axios
-  .get<Array<CommunityRecentPost>>(
-    'https://awesome-devblog.netlify.app/api/korean/teams/feeds?sort=date.desc&page=1&size=5'
+const communityRecentPosts = await useAxios()
+  .get<CommunityRecentPost[]>(
+    '/korean/teams/feeds?sort=date.desc&page=1&size=5'
   )
   .then(onFetch)
-  .then(data => {
-    return data.reduce(
-      (prev, cur) =>
-        `${prev}\n[${escapeMarkdown(cur.title)}](${escapeMarkdown(cur.link)})`,
-      ''
-    )
-  })
+  .then(data =>
+    data.reduce((prev, cur) => `${prev}[${cur.title}](${cur.link})\n`, '')
+  )
   .catch(onError)
 
 // Sends to webhooks
