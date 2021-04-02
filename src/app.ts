@@ -38,6 +38,11 @@ const personalRecentPosts = await AwesomeDevBlog.get<PersonalRecentPost[]>(
   .then(data =>
     data.reduce((prev, cur) => `${prev}[${cur.title}](${cur.link})\n`, '')
   )
+  .then(data => {
+    console.log('✅ Parsed AwesomeDevBlog personal recent posts successfully!')
+
+    return data
+  })
   .catch(onError)
 
 const communityRecentPosts = await AwesomeDevBlog.get<CommunityRecentPost[]>(
@@ -47,6 +52,11 @@ const communityRecentPosts = await AwesomeDevBlog.get<CommunityRecentPost[]>(
   .then(data =>
     data.reduce((prev, cur) => `${prev}[${cur.title}](${cur.link})\n`, '')
   )
+  .then(data => {
+    console.log('✅ Parsed AwesomeDevBlog community recent posts successfully!')
+
+    return data
+  })
   .catch(onError)
 
 const velogTrendingPosts = await Velog.post<{
@@ -77,9 +87,12 @@ const velogTrendingPosts = await Velog.post<{
       ''
     )
   )
-  .catch(onError)
+  .then(data => {
+    console.log('✅ Parsed Velog trending posts successfully!')
 
-console.log(velogTrendingPosts)
+    return data
+  })
+  .catch(onError)
 
 // Sends to webhooks
 Webhooks.map(async hookUrl => {
@@ -119,5 +132,15 @@ Webhooks.map(async hookUrl => {
     console.log('')
   }
 
-  await axios.post(hookUrl, message).catch(console.error)
+  await axios
+    .post(hookUrl, message)
+    .then(res =>
+      console.log(
+        '✅ Sent an webhook!',
+        `[${res.status < 400 ? '\x1b[92mOK' : '\x1b[91mERR'} ${res.status} ${
+          res.statusText
+        }\x1b[39m]`
+      )
+    )
+    .catch(err => console.error('❌ Could not send an webhook!\n', `${err}`))
 })
