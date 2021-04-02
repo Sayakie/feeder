@@ -1,22 +1,15 @@
 import * as workflows from '@actions/core'
 import axios from 'axios'
 import { WEBHOOK_TYPE } from './enums'
+import { assert } from './lib/assert'
 import type { AxiosResponse } from 'axios'
 import type {
   CommunityRecentPost,
   DiscordWebhookForm,
   PersonalRecentPost,
   SlackWebhookForm,
-  Wrapper,
+  Wrapper
 } from './interfaces'
-
-// axios.defaults.responseType = 'document'
-axios.defaults.timeout = 5000
-axios.defaults.timeoutErrorMessage = 'Timed out.'
-
-function assert<T>(_: unknown): asserts _ is T {
-  return
-}
 
 const { WEBHOOKS: rawWebhooks } = process.env
 if (rawWebhooks == null || rawWebhooks == undefined)
@@ -76,10 +69,10 @@ Webhooks.map(async hookUrl => {
           color: 9166827,
           fields: [
             { name: '개인 피드', value: personalRecentPosts, inline: false },
-            { name: '단체 피드', value: communityRecentPosts, inline: false },
-          ],
-        },
-      ],
+            { name: '단체 피드', value: communityRecentPosts, inline: false }
+          ]
+        }
+      ]
     }
   } else if (hookUrl.includes(WEBHOOK_TYPE.SLACK)) {
     assert<SlackWebhookForm>(message)
