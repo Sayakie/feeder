@@ -95,7 +95,7 @@ const velogTrendingPosts = await Velog.post<{
   .catch(onError)
 
 // Sends to webhooks
-Webhooks.map(async hookUrl => {
+Webhooks.forEach(async hookUrl => {
   if (hookUrl.includes(WEBHOOK_TYPE.DISCORD)) {
     assert<DiscordWebhookForm>(message)
 
