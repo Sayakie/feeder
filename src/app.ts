@@ -46,7 +46,7 @@ const personalRecentPosts = await AwesomeDevBlog.get<PersonalRecentPost[]>(
   .catch(onError)
 
 const communityRecentPosts = await AwesomeDevBlog.get<CommunityRecentPost[]>(
-  '/korean/teams/feeds?sort=date.desc&page=1&size=5'
+  '/korean/teams/feeds?sort=date.desc&page=1&size=7'
 )
   .then(onFetch)
   .then(data =>
@@ -76,7 +76,7 @@ const velogTrendingPosts = await Velog.post<{
     }
   }
   `,
-  variables: { limit: 5, offset: 0 }
+  variables: { limit: 7, offset: 0 }
 })
   .then(onFetch)
   .then(data => data.trendingPosts)
@@ -100,9 +100,9 @@ Webhooks.forEach(async hookUrl => {
     assert<DiscordWebhookForm>(message)
 
     message = {
-      username: 'Haru',
+      username: '달의하루 일일 피드',
       avatar_url:
-        'https://cdn.discordapp.com/avatars/247351691077222401/efe6009e69c1fcd2d3601a452cdf7e1e.png?size=128',
+        'https://cdn.discordapp.com/avatars/832613798287376394/858cd322e525b544eaae2715febb7925.webp?size=128',
       embeds: [
         {
           color: 9166827,
